@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Buff Central</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <!-- Background bubbles -->
+    <div class="animated-background"></div>
+
+    <!-- Header -->
+    <header>
+        <h1>Movie Buff Central</h1>
+        <p>Your one-stop hub for movie fanatics!</p>
+    </header>
+
+    <!-- Home Page -->
+    <section id="home">
+        <h2>Welcome to Movie Buff Central!</h2>
+        <p>Explore your favorite movies and characters in one place.</p>
+        <div class="poster-gallery">
+            <img src="https://m.media-amazon.com/images/I/71niXI3lxlL._AC_SY679_.jpg" alt="Movie Poster 1">
+            <img src="https://m.media-amazon.com/images/M/MV5BYjhiNjBlODctY2ZiOC00YjVlLWFlNzAtNTVhNzM1YjI1NzMxXkEyXkFqcGdeQXVyMjQxNTE1MDA@._V1_.jpg" alt="Movie Poster 2">
+            <img src="https://m.media-amazon.com/images/I/91dSMhdIzTL._AC_SY679_.jpg" alt="Movie Poster 3">
+            <img src="https://m.media-amazon.com/images/M/MV5BMDdmZGU3NDQtY2E5My00ZTliLWIzOTUtMTY4ZGI1YjdiNjk3XkEyXkFqcGdeQXVyNTA4NzY1MzY@._V1_FMjpg_UX1000_.jpg" alt="Movie Poster 4">
+        </div>
+        <p class="tagline">*All images are used for fan purposes.</p>
+    </section>
+
+    <!-- Character Bios -->
+    <section id="character-bios">
+        <h2>Character Bios</h2>
+        <div class="character">
+            <img src="https://upload.wikimedia.org/wikipedia/en/d/d7/Harry_Potter_character_poster.jpg" alt="Harry Potter">
+            <div class="bio">
+                <h3>Harry Potter</h3>
+                <p>Harry Potter is the central character of the Harry Potter series, known as "The Boy Who Lived." He is courageous, loyal, and possesses strong magical abilities. Orphaned as a baby, he is raised by the Dursleys but soon learns of his true
+                    heritage as a wizard. Throughout the series, Harry faces numerous challenges, ultimately defeating the dark wizard Voldemort.</p>
+            </div>
+        </div>
+        <div class="character">
+            <img src="https://wallpapers.com/images/hd/iron-man-4k-digital-art-vd1ke7auecp0x7j5.jpg" alt="Iron Man">
+            <div class="bio">
+                <h3>Iron Man</h3>
+                <p>Iron Man, also known as Tony Stark, is a genius billionaire, inventor, and philanthropist from the Marvel universe. After being injured in a kidnapping, he builds a high-tech suit of armor to save his life and fight evil. Stark is known
+                    for his quick wit, intelligence, and leadership within the Avengers. As Iron Man, he battles villains while constantly upgrading his armor, becoming a key figure in protecting the world.</p>
+            </div>
+        </div>
+        <div class="character">
+            <img src="https://m.media-amazon.com/images/M/MV5BNjRmNDI5MjMtMmFhZi00YzcwLWI4ZGItMGI2MjI0N2Q3YmIwXkEyXkFqcGdeQXVyMTkxNjUyNQ@@._V1_.jpg" alt="Black Widow">
+            <div class="bio">
+                <h3>Black Widow</h3>
+                <p>Black Widow, also known as Natasha Romanoff, is a skilled spy and expert martial artist in the Marvel universe. Trained in the Red Room, she initially worked as a Russian agent before defecting to S.H.I.E.L.D. Known for her agility, intelligence,
+                    and combat skills, she plays a key role in the Avengers. Despite her dark past, Natasha is dedicated to protecting humanity, often serving as the team's moral compass.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Movie Trailers -->
+    <section id="trailers">
+        <h2>Watch Trailers</h2>
+        <div class="trailer-container">
+            <iframe width="560" height="315" src="https://www.youtube.com/embed/kAznrd-So9U" title="YouTube video player" frameborder="0" allowfullscreen></iframe>
+            <iframe width="560" height="315" src="https://www.youtube.com/embed/9_lWzE5tQeI" title="YouTube video player" frameborder="0" allowfullscreen></iframe>
+        </div>
+    </section>
+
+    <!-- Quote of the Day -->
+    <section id="quote-of-the-day">
+        <h2>Quote of the Day</h2>
+        <p id="quote"></p>
+    </section>
+
+    <!-- Trivia Quiz -->
+    <section id="trivia">
+        <h2>Trivia Quiz</h2>
+        <p>Which character is known as the "Boy Who Lived"?</p>
+        <div class="quiz-buttons">
+            <button onclick="checkAnswer('Harry Potter')">Harry Potter</button>
+            <button onclick="checkAnswer('Iron Man')">Iron Man</button>
+        </div>
+        <p id="result"></p>
+    </section>
+
+    <!-- JavaScript -->
+    <script src="script.js"></script>
+</body>
+
+</html>

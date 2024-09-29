@@ -1,0 +1,139 @@
+/* General Styling */
+
+body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    color: white;
+    overflow-x: hidden;
+}
+
+h1,
+h2 {
+    font-family: 'Georgia', serif;
+    letter-spacing: 1px;
+    color: #ffcc33;
+    text-align: center;
+}
+
+header {
+    background-color: rgba(0, 0, 0, 0.85);
+    padding: 20px;
+    text-align: center;
+    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.7);
+}
+
+header p {
+    font-size: 1.2rem;
+    color: #ffcc33;
+}
+
+section {
+    padding: 50px;
+    text-align: center;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+
+/* Character Bios */
+
+.character {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.character img {
+    border-radius: 10px;
+    width: 180px;
+    height: 180px;
+    margin-right: 30px;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.7);
+}
+
+.bio {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 20px;
+    border-radius: 10px;
+    width: 50%;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.6);
+}
+
+.bio p {
+    color: #ffcc33;
+    font-size: 1rem;
+}
+
+
+/* Poster Gallery */
+
+.poster-gallery {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.poster-gallery img {
+    max-width: 200px;
+    border-radius: 10px;
+    margin: 15px;
+    transition: transform 0.3s;
+}
+
+.poster-gallery img:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 18px rgba(255, 255, 255, 0.5);
+}
+
+
+/* Trailers Section */
+
+.trailer-container {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+
+/* Quote of the Day */
+
+#quote {
+    font-style: italic;
+    color: #ffcc33;
+    font-size: 1.4rem;
+}
+
+
+/* Trivia Quiz */
+
+.quiz-buttons button {
+    background-color: #ffcc33;
+    color: #1e3c72;
+    border: none;
+    padding: 10px 20px;
+    margin: 10px;
+    border-radius: 5px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.quiz-buttons button:hover {
+    background-color: #e6b800;
+}
+
+
+/* Background Animation */
+
+.animated-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 10%, transparent 90%);
+    pointer-events: none;
+    z-index: -1;
+}
