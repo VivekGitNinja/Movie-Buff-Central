@@ -1,93 +1,1191 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="en" class="scroll-smooth">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Movie Buff Central</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Movie Buff Central — Your Cinematic Universe</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #080808;
+      --surface: #111111;
+      --surface-2: #1a1a1a;
+      --text-main: #EDEDED;
+      --text-muted: #777777;
+      --accent: #D4AF37;
+      --accent-dim: rgba(212, 175, 55, 0.08);
+      --accent-glow: rgba(212, 175, 55, 0.25);
+      --red: #C41E3A;
+      --border: rgba(255, 255, 255, 0.06);
+      --border-light: rgba(255, 255, 255, 0.1);
+      --font-display: 'Syne', sans-serif;
+      --font-body: 'Manrope', sans-serif;
+      --ease: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: var(--bg);
+      color: var(--text-main);
+      font-family: var(--font-body);
+      font-size: 16px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+      cursor: none;
+    }
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 3px; }
+
+    .cursor {
+      width: 8px; height: 8px; background: var(--text-main);
+      border-radius: 50%; position: fixed; pointer-events: none;
+      z-index: 10001; mix-blend-mode: difference;
+      transition: width 0.3s, height 0.3s;
+    }
+    .cursor.hover { width: 4px; height: 4px; }
+    .cursor-follower {
+      width: 32px; height: 32px;
+      border: 1px solid rgba(255,255,255,0.25);
+      border-radius: 50%; position: fixed; pointer-events: none;
+      z-index: 10000;
+      transition: width 0.3s, height 0.3s, border-color 0.3s, background 0.3s;
+    }
+    .cursor-follower.hover {
+      width: 60px; height: 60px;
+      border-color: var(--accent);
+      background: var(--accent-dim);
+    }
+
+    .noise-overlay {
+      position: fixed; inset: 0;
+      opacity: 0.025; z-index: 998; pointer-events: none;
+      background: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    }
+
+    .font-display { font-family: var(--font-display); }
+    .label-text {
+      font-size: 0.7rem; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.2em;
+      color: var(--text-muted);
+    }
+    .heading-xl {
+      font-family: var(--font-display);
+      font-size: clamp(2.5rem, 8vw, 6.5rem);
+      font-weight: 700; line-height: 0.92;
+      letter-spacing: -0.03em; text-transform: uppercase;
+    }
+    .heading-lg {
+      font-family: var(--font-display);
+      font-size: clamp(1.75rem, 3.5vw, 3rem);
+      font-weight: 600; line-height: 1.05; letter-spacing: -0.02em;
+    }
+    .heading-md {
+      font-family: var(--font-display);
+      font-size: clamp(1.1rem, 1.8vw, 1.5rem);
+      font-weight: 500; letter-spacing: -0.01em;
+    }
+
+    .reveal {
+      opacity: 0; transform: translateY(30px);
+      transition: 1s var(--ease);
+    }
+    .reveal.active { opacity: 1; transform: translateY(0); }
+    .reveal-d1 { transition-delay: 0.1s; }
+    .reveal-d2 { transition-delay: 0.2s; }
+    .reveal-d3 { transition-delay: 0.3s; }
+    .reveal-d4 { transition-delay: 0.4s; }
+    .reveal-d5 { transition-delay: 0.5s; }
+
+    /* Hero */
+    .hero-bg {
+      position: absolute; inset: 0;
+      background: url('https://picsum.photos/seed/cinema-dark-hall/1920/1080.jpg') center/cover;
+      filter: grayscale(1) contrast(1.3) brightness(0.3);
+    }
+    .hero-bg::after {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(to top, var(--bg) 0%, transparent 40%, transparent 60%, rgba(8,8,8,0.6) 100%);
+    }
+    .hero-glow {
+      position: absolute; bottom: 20%; left: 50%; transform: translateX(-50%);
+      width: 600px; height: 300px;
+      background: radial-gradient(ellipse, var(--accent-glow) 0%, transparent 70%);
+      filter: blur(60px); pointer-events: none;
+    }
+
+    /* Nav */
+    .nav-bar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+      padding: 1.5rem 3rem;
+      transition: background 0.4s, backdrop-filter 0.4s, padding 0.4s;
+    }
+    .nav-bar.scrolled {
+      background: rgba(8,8,8,0.85);
+      backdrop-filter: blur(20px);
+      padding: 1rem 3rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* Menu */
+    .menu-overlay {
+      position: fixed; inset: 0; z-index: 999;
+      background: #050505;
+      transform: translateY(-100%);
+      transition: transform 0.8s var(--ease);
+    }
+    .menu-overlay.open { transform: translateY(0); }
+    .menu-link {
+      display: block; font-family: var(--font-display);
+      font-size: clamp(2rem, 5vw, 4rem); font-weight: 700;
+      text-transform: uppercase; letter-spacing: -0.02em;
+      color: var(--text-muted);
+      transition: transform 0.4s var(--ease), color 0.4s var(--ease);
+    }
+    .menu-link:hover { transform: translateX(24px); color: var(--accent); }
+
+    /* Poster Scroll */
+    .poster-scroll {
+      display: flex; gap: 1.25rem;
+      overflow-x: auto; scroll-snap-type: x mandatory;
+      padding: 1rem 0 2rem;
+      -ms-overflow-style: none; scrollbar-width: none;
+    }
+    .poster-scroll::-webkit-scrollbar { display: none; }
+    .poster-card {
+      flex: 0 0 260px; scroll-snap-align: start;
+      position: relative; overflow: hidden; border-radius: 6px;
+      transition: transform 0.5s var(--ease);
+    }
+    .poster-card:hover { transform: translateY(-8px) scale(1.02); }
+    .poster-card img {
+      width: 100%; aspect-ratio: 2/3; object-fit: cover;
+      transition: transform 0.7s var(--ease), filter 0.5s;
+      filter: grayscale(0.15) contrast(1.05);
+    }
+    .poster-card:hover img { transform: scale(1.08); filter: grayscale(0) contrast(1.1); }
+    .poster-card .overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.3) 40%, transparent 60%);
+      display: flex; flex-direction: column; justify-content: flex-end;
+      padding: 1.25rem;
+    }
+    .poster-card .rating {
+      display: inline-flex; align-items: center; gap: 0.3rem;
+      background: rgba(212,175,55,0.15); border: 1px solid rgba(212,175,55,0.3);
+      padding: 0.2rem 0.6rem; border-radius: 3px;
+      font-size: 0.7rem; font-weight: 700; color: var(--accent);
+      width: fit-content; margin-bottom: 0.5rem;
+    }
+
+    /* Character cards */
+    .char-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px; overflow: hidden;
+      transition: border-color 0.4s, transform 0.5s var(--ease), box-shadow 0.5s;
+    }
+    .char-card:hover {
+      border-color: rgba(212,175,55,0.2);
+      transform: translateY(-6px);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.4), 0 0 40px var(--accent-dim);
+    }
+    .char-img-wrap {
+      position: relative; overflow: hidden; aspect-ratio: 3/4;
+    }
+    .char-img-wrap img {
+      width: 100%; height: 100%; object-fit: cover;
+      filter: grayscale(0.3) contrast(1.1);
+      transition: transform 0.7s var(--ease), filter 0.5s;
+    }
+    .char-card:hover .char-img-wrap img {
+      transform: scale(1.06); filter: grayscale(0) contrast(1.1);
+    }
+    .char-img-wrap .char-badge {
+      position: absolute; top: 1rem; left: 1rem;
+      background: rgba(0,0,0,0.7); backdrop-filter: blur(8px);
+      padding: 0.3rem 0.75rem; border-radius: 3px;
+      font-size: 0.65rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.15em;
+      color: var(--accent); border: 1px solid rgba(212,175,55,0.2);
+    }
+
+    /* Trailers */
+    .trailer-card {
+      position: relative; overflow: hidden;
+      border-radius: 6px; border: 1px solid var(--border);
+      background: var(--surface);
+      transition: border-color 0.4s, box-shadow 0.4s;
+    }
+    .trailer-card:hover {
+      border-color: rgba(212,175,55,0.2);
+      box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+    }
+    .trailer-thumb {
+      position: relative; aspect-ratio: 16/9; overflow: hidden; cursor: pointer;
+    }
+    .trailer-thumb img {
+      width: 100%; height: 100%; object-fit: cover;
+      filter: grayscale(0.2) contrast(1.1) brightness(0.8);
+      transition: filter 0.5s, transform 0.7s var(--ease);
+    }
+    .trailer-card:hover .trailer-thumb img {
+      filter: grayscale(0) contrast(1.1) brightness(0.9);
+      transform: scale(1.04);
+    }
+    .play-circle {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 72px; height: 72px; border-radius: 50%;
+      background: var(--accent);
+      display: flex; align-items: center; justify-content: center;
+      transition: transform 0.3s var(--ease), box-shadow 0.3s;
+      z-index: 2;
+    }
+    .trailer-card:hover .play-circle {
+      transform: translate(-50%, -50%) scale(1.12);
+      box-shadow: 0 0 40px rgba(212,175,55,0.4);
+    }
+    .trailer-iframe {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      border: none; z-index: 3; display: none;
+    }
+    .trailer-card.playing .play-circle { display: none; }
+    .trailer-card.playing .trailer-iframe { display: block; }
+
+    /* Quote */
+    .quote-big { font-size: 6rem; line-height: 1; color: var(--accent); opacity: 0.15; }
+
+    /* Quiz */
+    .quiz-opt {
+      width: 100%; padding: 1rem 1.25rem;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 6px; color: var(--text-main);
+      font-family: var(--font-body); font-size: 0.9rem;
+      text-align: left; cursor: pointer;
+      transition: all 0.3s; display: flex; align-items: center; gap: 0.75rem;
+    }
+    .quiz-opt:hover:not(.locked) {
+      border-color: var(--accent); background: var(--accent-dim);
+    }
+    .quiz-opt .opt-letter {
+      width: 28px; height: 28px; border-radius: 50%;
+      border: 1px solid var(--border-light);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.7rem; font-weight: 700; flex-shrink: 0;
+      transition: all 0.3s;
+    }
+    .quiz-opt:hover:not(.locked) .opt-letter {
+      border-color: var(--accent); color: var(--accent);
+    }
+    .quiz-opt.correct {
+      border-color: #22c55e; background: rgba(34,197,94,0.08);
+    }
+    .quiz-opt.correct .opt-letter {
+      background: #22c55e; border-color: #22c55e; color: #000;
+    }
+    .quiz-opt.wrong {
+      border-color: #ef4444; background: rgba(239,68,68,0.08);
+    }
+    .quiz-opt.wrong .opt-letter {
+      background: #ef4444; border-color: #ef4444; color: #fff;
+    }
+    .quiz-opt.locked { cursor: default; opacity: 0.4; }
+    .quiz-opt.locked.correct, .quiz-opt.locked.wrong { opacity: 1; }
+
+    .progress-track {
+      height: 3px; background: var(--surface-2);
+      border-radius: 2px; overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%; background: var(--accent);
+      transition: width 0.6s var(--ease); border-radius: 2px;
+    }
+
+    /* Stat card */
+    .stat-item {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 0.75rem 0;
+    }
+    .stat-item + .stat-item { border-top: 1px solid var(--border); }
+
+    /* Genre pill */
+    .genre-pill {
+      display: inline-block; padding: 0.25rem 0.6rem;
+      border: 1px solid var(--border); border-radius: 3px;
+      font-size: 0.6rem; text-transform: uppercase;
+      letter-spacing: 0.1em; color: var(--text-muted);
+      transition: all 0.2s;
+    }
+    .genre-pill:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* Toast */
+    .toast-msg {
+      position: fixed; bottom: 2rem; right: 2rem;
+      background: var(--surface-2); border: 1px solid var(--border-light);
+      color: var(--text-main); padding: 0.875rem 1.5rem;
+      border-radius: 6px; font-size: 0.85rem; z-index: 10002;
+      transform: translateY(100px); opacity: 0;
+      transition: all 0.5s var(--ease);
+      display: flex; align-items: center; gap: 0.5rem;
+    }
+    .toast-msg.show { transform: translateY(0); opacity: 1; }
+
+    /* Marquee */
+    @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+    @keyframes marquee-r { 0% { transform: translateX(-50%); } 100% { transform: translateX(0); } }
+    .pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+    @keyframes pulse { 50% { opacity: 0.5; } }
+
+    /* Glow line */
+    .glow-line {
+      height: 1px; width: 100%;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+      opacity: 0.3;
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+      .nav-bar { padding: 1.25rem 1.5rem !important; }
+      .nav-bar.scrolled { padding: 0.875rem 1.5rem !important; }
+      .sec-pad { padding: 4rem 1.5rem !important; }
+      .grid-2 { grid-template-columns: 1fr !important; }
+      .grid-3 { grid-template-columns: 1fr 1fr !important; }
+      .hide-md { display: none !important; }
+      .poster-card { flex: 0 0 220px; }
+      .hero-grid { grid-template-columns: 1fr !important; }
+    }
+    @media (max-width: 640px) {
+      .grid-3 { grid-template-columns: 1fr !important; }
+      .poster-card { flex: 0 0 180px; }
+      .trailer-grid { grid-template-columns: 1fr !important; }
+    }
+    @media (pointer: coarse) {
+      .cursor, .cursor-follower { display: none; }
+      body { cursor: auto; }
+    }
+  </style>
 </head>
-
 <body>
-    <!-- Background bubbles -->
-    <div class="animated-background"></div>
 
-    <!-- Header -->
-    <header>
-        <h1>Movie Buff Central</h1>
-        <p>Your one-stop hub for movie fanatics!</p>
-    </header>
+<div class="noise-overlay"></div>
+<div class="cursor" id="cursor"></div>
+<div class="cursor-follower" id="cursorFollower"></div>
 
-    <!-- Home Page -->
-    <section id="home">
-        <h2>Welcome to Movie Buff Central!</h2>
-        <p>Explore your favorite movies and characters in one place.</p>
-        <div class="poster-gallery">
-            <img src="https://m.media-amazon.com/images/I/71niXI3lxlL._AC_SY679_.jpg" alt="Movie Poster 1">
-            <img src="https://m.media-amazon.com/images/M/MV5BYjhiNjBlODctY2ZiOC00YjVlLWFlNzAtNTVhNzM1YjI1NzMxXkEyXkFqcGdeQXVyMjQxNTE1MDA@._V1_.jpg" alt="Movie Poster 2">
-            <img src="https://m.media-amazon.com/images/I/91dSMhdIzTL._AC_SY679_.jpg" alt="Movie Poster 3">
-            <img src="https://m.media-amazon.com/images/M/MV5BMDdmZGU3NDQtY2E5My00ZTliLWIzOTUtMTY4ZGI1YjdiNjk3XkEyXkFqcGdeQXVyNTA4NzY1MzY@._V1_FMjpg_UX1000_.jpg" alt="Movie Poster 4">
+<!-- ========== NAV ========== -->
+<nav class="nav-bar" id="navbar">
+  <div class="max-w-[1600px] mx-auto flex items-center justify-between">
+    <a href="#hero" class="hover-target flex items-center gap-2" style="text-decoration: none;">
+      <iconify-icon icon="mdi:filmstrip-box" style="font-size: 1.3rem; color: var(--accent);"></iconify-icon>
+      <span class="font-display font-bold text-sm tracking-tight" style="color: var(--text-main);">MOVIE BUFF CENTRAL</span>
+    </a>
+    <div class="hidden lg:flex items-center gap-8">
+      <a href="#films" class="hover-target label-text" style="color: var(--text-muted); text-decoration: none; transition: color 0.15s;" onmouseenter="this.style.color='var(--text-main)'" onmouseleave="this.style.color='var(--text-muted)'">Films</a>
+      <a href="#characters" class="hover-target label-text" style="color: var(--text-muted); text-decoration: none; transition: color 0.15s;" onmouseenter="this.style.color='var(--text-main)'" onmouseleave="this.style.color='var(--text-muted)'">Characters</a>
+      <a href="#trailers" class="hover-target label-text" style="color: var(--text-muted); text-decoration: none; transition: color 0.15s;" onmouseenter="this.style.color='var(--text-main)'" onmouseleave="this.style.color='var(--text-muted)'">Trailers</a>
+      <a href="#quotes" class="hover-target label-text" style="color: var(--text-muted); text-decoration: none; transition: color 0.15s;" onmouseenter="this.style.color='var(--text-main)'" onmouseleave="this.style.color='var(--text-muted)'">Quotes</a>
+      <a href="#trivia" class="hover-target label-text" style="color: var(--text-muted); text-decoration: none; transition: color 0.15s;" onmouseenter="this.style.color='var(--text-main)'" onmouseleave="this.style.color='var(--text-muted)'">Trivia</a>
+    </div>
+    <button id="menuBtn" class="hover-target flex items-center gap-2" style="background: none; border: none;">
+      <span class="label-text" style="color: var(--text-main);">Menu</span>
+      <iconify-icon icon="mdi:menu" style="color: var(--text-main); font-size: 1.2rem;" id="menuIcon"></iconify-icon>
+    </button>
+  </div>
+</nav>
+
+<!-- ========== MENU OVERLAY ========== -->
+<div class="menu-overlay" id="menuOverlay">
+  <div class="flex flex-col justify-center h-full" style="padding: 6rem 4rem;">
+    <div class="space-y-4">
+      <a href="#hero" class="menu-link hover-target" onclick="closeMenu()">Home</a>
+      <a href="#films" class="menu-link hover-target" onclick="closeMenu()">Featured Films</a>
+      <a href="#characters" class="menu-link hover-target" onclick="closeMenu()">Characters</a>
+      <a href="#trailers" class="menu-link hover-target" onclick="closeMenu()">Trailers</a>
+      <a href="#quotes" class="menu-link hover-target" onclick="closeMenu()">Quotes</a>
+      <a href="#trivia" class="menu-link hover-target" onclick="closeMenu()">Trivia Quiz</a>
+    </div>
+    <div class="mt-16 flex flex-wrap gap-6">
+      <a href="https://www.imdb.com" target="_blank" class="label-text hover-target" style="color: var(--text-muted); text-decoration: none; transition: color 0.15s;" onmouseenter="this.style.color='var(--accent)'" onmouseleave="this.style.color='var(--text-muted)'">IMDb</a>
+      <a href="https://www.letterboxd.com" target="_blank" class="label-text hover-target" style="color: var(--text-muted); text-decoration: none; transition: color 0.15s;" onmouseenter="this.style.color='var(--accent)'" onmouseleave="this.style.color='var(--text-muted)'">Letterboxd</a>
+      <a href="https://www.rottentomatoes.com" target="_blank" class="label-text hover-target" style="color: var(--text-muted); text-decoration: none; transition: color 0.15s;" onmouseenter="this.style.color='var(--accent)'" onmouseleave="this.style.color='var(--text-muted)'">Rotten Tomatoes</a>
+      <a href="https://www.themoviedb.org" target="_blank" class="label-text hover-target" style="color: var(--text-muted); text-decoration: none; transition: color 0.15s;" onmouseenter="this.style.color='var(--accent)'" onmouseleave="this.style.color='var(--text-muted)'">TMDB</a>
+    </div>
+  </div>
+</div>
+
+<!-- ========== HERO ========== -->
+<section id="hero" class="relative flex flex-col justify-end" style="min-height: 100vh; padding: 0 4rem 5rem;">
+  <div class="hero-bg"></div>
+  <div class="hero-glow"></div>
+  <div class="relative z-10 max-w-[1600px] mx-auto w-full">
+    <div class="hero-grid" style="display: grid; grid-template-columns: 1.4fr 1fr; gap: 3rem; align-items: end;">
+      <div>
+        <div class="reveal flex items-center gap-3 mb-6">
+          <div style="width: 32px; height: 1px; background: var(--accent);"></div>
+          <span class="label-text" style="color: var(--accent);">Your Cinematic Universe</span>
         </div>
-        <p class="tagline">*All images are used for fan purposes.</p>
-    </section>
+        <h1 class="heading-xl reveal reveal-d1" style="color: var(--text-main);">
+          Movie<br>Buff<br><span style="color: var(--accent);">Central</span>
+        </h1>
+      </div>
+      <div class="flex flex-col gap-6 reveal reveal-d2">
+        <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.7;">
+          Explore iconic characters, watch trailers, discover legendary quotes, and test your cinema knowledge — all in one place.
+        </p>
+        <div class="flex gap-4">
+          <a href="#films" class="hover-target font-display font-semibold uppercase tracking-widest text-xs px-6 py-3.5 inline-flex items-center gap-2" style="background: var(--accent); color: #000; text-decoration: none; transition: all 0.3s;" onmouseenter="this.style.background='var(--text-main)'" onmouseleave="this.style.background='var(--accent)'">
+            Explore
+            <iconify-icon icon="mdi:arrow-right" style="font-size: 0.9rem;"></iconify-icon>
+          </a>
+          <a href="#trivia" class="hover-target font-display font-semibold uppercase tracking-widest text-xs px-6 py-3.5 inline-flex items-center gap-2" style="background: transparent; color: var(--text-main); text-decoration: none; border: 1px solid var(--border-light); transition: all 0.3s;" onmouseenter="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseleave="this.style.borderColor='var(--border-light)';this.style.color='var(--text-main)'">
+            Take Quiz
+          </a>
+        </div>
+        <div class="flex items-center gap-2" style="color: var(--text-muted);">
+          <iconify-icon icon="mdi:arrow-down" class="pulse" style="font-size: 0.9rem;"></iconify-icon>
+          <span style="font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.15em;">Scroll</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
-    <!-- Character Bios -->
-    <section id="character-bios">
-        <h2>Character Bios</h2>
-        <div class="character">
-            <img src="https://upload.wikimedia.org/wikipedia/en/d/d7/Harry_Potter_character_poster.jpg" alt="Harry Potter">
-            <div class="bio">
-                <h3>Harry Potter</h3>
-                <p>Harry Potter is the central character of the Harry Potter series, known as "The Boy Who Lived." He is courageous, loyal, and possesses strong magical abilities. Orphaned as a baby, he is raised by the Dursleys but soon learns of his true
-                    heritage as a wizard. Throughout the series, Harry faces numerous challenges, ultimately defeating the dark wizard Voldemort.</p>
+<!-- ========== FEATURED FILMS ========== -->
+<section id="films" class="sec-pad" style="padding: 6rem 4rem; border-top: 1px solid var(--border);">
+  <div class="max-w-[1600px] mx-auto">
+    <div class="flex items-end justify-between mb-8">
+      <div>
+        <div class="reveal flex items-center gap-3 mb-4">
+          <div style="width: 24px; height: 1px; background: var(--accent);"></div>
+          <span class="label-text">Featured Films</span>
+        </div>
+        <h2 class="heading-lg reveal reveal-d1">Must-watch collection</h2>
+      </div>
+      <div class="reveal reveal-d2 hide-md flex items-center gap-2" style="color: var(--text-muted); font-size: 0.75rem;">
+        <iconify-icon icon="mdi:gesture-swipe-horizontal" style="font-size: 1rem;"></iconify-icon>
+        Drag to explore
+      </div>
+    </div>
+    <div class="poster-scroll reveal reveal-d2">
+      <div class="poster-card hover-target">
+        <img src="https://picsum.photos/seed/avengers-endgame-poster/520/780.jpg" alt="Avengers Endgame">
+        <div class="overlay">
+          <div class="rating"><iconify-icon icon="mdi:star" style="font-size: 0.65rem;"></iconify-icon> 8.4</div>
+          <p class="font-display font-semibold text-sm">Avengers: Endgame</p>
+          <div class="flex gap-1.5 mt-1.5"><span class="genre-pill">Action</span><span class="genre-pill">Sci-Fi</span></div>
+        </div>
+      </div>
+      <div class="poster-card hover-target">
+        <img src="https://picsum.photos/seed/harry-potter-sorcerer/520/780.jpg" alt="Harry Potter">
+        <div class="overlay">
+          <div class="rating"><iconify-icon icon="mdi:star" style="font-size: 0.65rem;"></iconify-icon> 7.6</div>
+          <p class="font-display font-semibold text-sm">Harry Potter & Sorcerer's Stone</p>
+          <div class="flex gap-1.5 mt-1.5"><span class="genre-pill">Fantasy</span><span class="genre-pill">Adventure</span></div>
+        </div>
+      </div>
+      <div class="poster-card hover-target">
+        <img src="https://picsum.photos/seed/spiderman-noway/520/780.jpg" alt="Spider-Man">
+        <div class="overlay">
+          <div class="rating"><iconify-icon icon="mdi:star" style="font-size: 0.65rem;"></iconify-icon> 8.2</div>
+          <p class="font-display font-semibold text-sm">Spider-Man: No Way Home</p>
+          <div class="flex gap-1.5 mt-1.5"><span class="genre-pill">Action</span><span class="genre-pill">Multiverse</span></div>
+        </div>
+      </div>
+      <div class="poster-card hover-target">
+        <img src="https://picsum.photos/seed/oppenheimer-film/520/780.jpg" alt="Oppenheimer">
+        <div class="overlay">
+          <div class="rating"><iconify-icon icon="mdi:star" style="font-size: 0.65rem;"></iconify-icon> 8.5</div>
+          <p class="font-display font-semibold text-sm">Oppenheimer</p>
+          <div class="flex gap-1.5 mt-1.5"><span class="genre-pill">Drama</span><span class="genre-pill">Biography</span></div>
+        </div>
+      </div>
+      <div class="poster-card hover-target">
+        <img src="https://picsum.photos/seed/dark-knight-rises/520/780.jpg" alt="The Dark Knight">
+        <div class="overlay">
+          <div class="rating"><iconify-icon icon="mdi:star" style="font-size: 0.65rem;"></iconify-icon> 9.0</div>
+          <p class="font-display font-semibold text-sm">The Dark Knight</p>
+          <div class="flex gap-1.5 mt-1.5"><span class="genre-pill">Action</span><span class="genre-pill">Thriller</span></div>
+        </div>
+      </div>
+      <div class="poster-card hover-target">
+        <img src="https://picsum.photos/seed/interstellar-space/520/780.jpg" alt="Interstellar">
+        <div class="overlay">
+          <div class="rating"><iconify-icon icon="mdi:star" style="font-size: 0.65rem;"></iconify-icon> 8.7</div>
+          <p class="font-display font-semibold text-sm">Interstellar</p>
+          <div class="flex gap-1.5 mt-1.5"><span class="genre-pill">Sci-Fi</span><span class="genre-pill">Drama</span></div>
+        </div>
+      </div>
+      <div class="poster-card hover-target">
+        <img src="https://picsum.photos/seed/godfather-classic/520/780.jpg" alt="The Godfather">
+        <div class="overlay">
+          <div class="rating"><iconify-icon icon="mdi:star" style="font-size: 0.65rem;"></iconify-icon> 9.2</div>
+          <p class="font-display font-semibold text-sm">The Godfather</p>
+          <div class="flex gap-1.5 mt-1.5"><span class="genre-pill">Crime</span><span class="genre-pill">Drama</span></div>
+        </div>
+      </div>
+      <div class="poster-card hover-target">
+        <img src="https://picsum.photos/seed/inception-dream/520/780.jpg" alt="Inception">
+        <div class="overlay">
+          <div class="rating"><iconify-icon icon="mdi:star" style="font-size: 0.65rem;"></iconify-icon> 8.8</div>
+          <p class="font-display font-semibold text-sm">Inception</p>
+          <div class="flex gap-1.5 mt-1.5"><span class="genre-pill">Sci-Fi</span><span class="genre-pill">Thriller</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== GLOW DIVIDER ========== -->
+<div class="glow-line"></div>
+
+<!-- ========== GENRE MARQUEE ========== -->
+<section style="padding: 2.5rem 0; overflow: hidden;">
+  <div class="flex whitespace-nowrap" style="animation: marquee 20s linear infinite;">
+    <span class="font-display" style="font-size: clamp(1.2rem, 3vw, 2.2rem); font-weight: 700; text-transform: uppercase; letter-spacing: -0.02em; color: transparent; -webkit-text-stroke: 1px rgba(255,255,255,0.1); padding-right: 1.5rem;">Action</span>
+    <span style="color: var(--accent); padding-right: 1.5rem;">✦</span>
+    <span class="font-display" style="font-size: clamp(1.2rem, 3vw, 2.2rem); font-weight: 700; text-transform: uppercase; letter-spacing: -0.02em; color: transparent; -webkit-text-stroke: 1px rgba(255,255,255,0.1); padding-right: 1.5rem;">Drama</span>
+    <span style="color: var(--accent); padding-right: 1.5rem;">✦</span>
+    <span class="font-display" style="font-size: clamp(1.2rem, 3vw, 2.2rem); font-weight: 700; text-transform: uppercase; letter-spacing: -0.02em; color: transparent; -webkit-text-stroke: 1px rgba(255,255,255,0.1); padding-right: 1.5rem;">Sci-Fi</span>
+    <span style="color: var(--accent); padding-right: 1.5rem;">✦</span>
+    <span class="font-display" style="font-size: clamp(1.2rem, 3vw, 2.2rem); font-weight: 700; text-transform: uppercase; letter-spacing: -0.02em; color: transparent; -webkit-text-stroke: 1px rgba(255,255,255,0.1); padding-right: 1.5rem;">Fantasy</span>
+    <span style="color: var(--accent); padding-right: 1.5rem;">✦</span>
+    <span class="font-display" style="font-size: clamp(1.2rem, 3vw, 2.2rem); font-weight: 700; text-transform: uppercase; letter-spacing: -0.02em; color: transparent; -webkit-text-stroke: 1px rgba(255,255,255,0.1); padding-right: 1.5rem;">Thriller</span>
+    <span style="color: var(--accent); padding-right: 1.5rem;">✦</span>
+    <span class="font-display" style="font-size: clamp(1.2rem, 3vw, 2.2rem); font-weight: 700; text-transform: uppercase; letter-spacing: -0.02em; color: transparent; -webkit-text-stroke: 1px rgba(255,255,255,0.1); padding-right: 1.5rem;">Crime</span>
+    <span style="color: var(--accent); padding-right: 1.5rem;">✦</span>
+    <span class="font-display" style="font-size: clamp(1.2rem, 3vw, 2.2rem); font-weight: 700; text-transform: uppercase; letter-spacing: -0.02em; color: transparent; -webkit-text-stroke: 1px rgba(255,255,255,0.1); padding-right: 1.5rem;">Action</span>
+    <span style="color: var(--accent); padding-right: 1.5rem;">✦</span>
+    <span class="font-display" style="font-size: clamp(1.2rem, 3vw, 2.2rem); font-weight: 700; text-transform: uppercase; letter-spacing: -0.02em; color: transparent; -webkit-text-stroke: 1px rgba(255,255,255,0.1); padding-right: 1.5rem;">Drama</span>
+    <span style="color: var(--accent); padding-right: 1.5rem;">✦</span>
+    <span class="font-display" style="font-size: clamp(1.2rem, 3vw, 2.2rem); font-weight: 700; text-transform: uppercase; letter-spacing: -0.02em; color: transparent; -webkit-text-stroke: 1px rgba(255,255,255,0.1); padding-right: 1.5rem;">Sci-Fi</span>
+    <span style="color: var(--accent); padding-right: 1.5rem;">✦</span>
+    <span class="font-display" style="font-size: clamp(1.2rem, 3vw, 2.2rem); font-weight: 700; text-transform: uppercase; letter-spacing: -0.02em; color: transparent; -webkit-text-stroke: 1px rgba(255,255,255,0.1); padding-right: 1.5rem;">Fantasy</span>
+    <span style="color: var(--accent); padding-right: 1.5rem;">✦</span>
+    <span class="font-display" style="font-size: clamp(1.2rem, 3vw, 2.2rem); font-weight: 700; text-transform: uppercase; letter-spacing: -0.02em; color: transparent; -webkit-text-stroke: 1px rgba(255,255,255,0.1); padding-right: 1.5rem;">Thriller</span>
+    <span style="color: var(--accent); padding-right: 1.5rem;">✦</span>
+    <span class="font-display" style="font-size: clamp(1.2rem, 3vw, 2.2rem); font-weight: 700; text-transform: uppercase; letter-spacing: -0.02em; color: transparent; -webkit-text-stroke: 1px rgba(255,255,255,0.1); padding-right: 1.5rem;">Crime</span>
+    <span style="color: var(--accent); padding-right: 1.5rem;">✦</span>
+  </div>
+</section>
+
+<!-- ========== CHARACTER BIOS ========== -->
+<section id="characters" class="sec-pad" style="padding: 6rem 4rem; border-top: 1px solid var(--border);">
+  <div class="max-w-[1600px] mx-auto">
+    <div class="reveal flex items-center gap-3 mb-4">
+      <div style="width: 24px; height: 1px; background: var(--accent);"></div>
+      <span class="label-text">Character Bios</span>
+    </div>
+    <div class="flex items-end justify-between mb-10">
+      <h2 class="heading-lg reveal reveal-d1">Iconic characters</h2>
+      <p class="label-text reveal reveal-d2 hide-md" style="color: var(--text-muted);">Hover to explore</p>
+    </div>
+    <div class="grid-3" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem;">
+
+      <!-- Harry Potter -->
+      <div class="char-card hover-target reveal">
+        <div class="char-img-wrap">
+          <img src="https://picsum.photos/seed/harry-wizard-boy/600/800.jpg" alt="Harry Potter">
+          <span class="char-badge">Wizard</span>
+        </div>
+        <div style="padding: 1.5rem;">
+          <h3 class="heading-md mb-2">Harry Potter</h3>
+          <p style="color: var(--text-muted); font-size: 0.85rem; line-height: 1.7;">
+            The Boy Who Lived — courageous, loyal, and destined for greatness. Orphaned as a baby, Harry discovers his wizarding heritage and faces Voldemort, ultimately reshaping the magical world forever.
+          </p>
+          <div class="flex gap-4 mt-4 pt-3" style="border-top: 1px solid var(--border);">
+            <div>
+              <p style="color: var(--accent); font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.12em;">Universe</p>
+              <p style="font-size: 0.8rem; margin-top: 0.15rem;">Harry Potter</p>
             </div>
-        </div>
-        <div class="character">
-            <img src="https://wallpapers.com/images/hd/iron-man-4k-digital-art-vd1ke7auecp0x7j5.jpg" alt="Iron Man">
-            <div class="bio">
-                <h3>Iron Man</h3>
-                <p>Iron Man, also known as Tony Stark, is a genius billionaire, inventor, and philanthropist from the Marvel universe. After being injured in a kidnapping, he builds a high-tech suit of armor to save his life and fight evil. Stark is known
-                    for his quick wit, intelligence, and leadership within the Avengers. As Iron Man, he battles villains while constantly upgrading his armor, becoming a key figure in protecting the world.</p>
+            <div>
+              <p style="color: var(--accent); font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.12em;">Actor</p>
+              <p style="font-size: 0.8rem; margin-top: 0.15rem;">Daniel Radcliffe</p>
             </div>
+          </div>
         </div>
-        <div class="character">
-            <img src="https://m.media-amazon.com/images/M/MV5BNjRmNDI5MjMtMmFhZi00YzcwLWI4ZGItMGI2MjI0N2Q3YmIwXkEyXkFqcGdeQXVyMTkxNjUyNQ@@._V1_.jpg" alt="Black Widow">
-            <div class="bio">
-                <h3>Black Widow</h3>
-                <p>Black Widow, also known as Natasha Romanoff, is a skilled spy and expert martial artist in the Marvel universe. Trained in the Red Room, she initially worked as a Russian agent before defecting to S.H.I.E.L.D. Known for her agility, intelligence,
-                    and combat skills, she plays a key role in the Avengers. Despite her dark past, Natasha is dedicated to protecting humanity, often serving as the team's moral compass.</p>
+      </div>
+
+      <!-- Iron Man -->
+      <div class="char-card hover-target reveal reveal-d1">
+        <div class="char-img-wrap">
+          <img src="https://picsum.photos/seed/ironman-hero-red/600/800.jpg" alt="Iron Man">
+          <span class="char-badge">Genius</span>
+        </div>
+        <div style="padding: 1.5rem;">
+          <h3 class="heading-md mb-2">Iron Man</h3>
+          <p style="color: var(--text-muted); font-size: 0.85rem; line-height: 1.7;">
+            Tony Stark — billionaire inventor who built a high-tech suit of armor and became a legend. Quick-witted, brilliant, and selfless, he led the Avengers and made the ultimate sacrifice to save the universe.
+          </p>
+          <div class="flex gap-4 mt-4 pt-3" style="border-top: 1px solid var(--border);">
+            <div>
+              <p style="color: var(--accent); font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.12em;">Universe</p>
+              <p style="font-size: 0.8rem; margin-top: 0.15rem;">Marvel Cinematic</p>
             </div>
+            <div>
+              <p style="color: var(--accent); font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.12em;">Actor</p>
+              <p style="font-size: 0.8rem; margin-top: 0.15rem;">Robert Downey Jr.</p>
+            </div>
+          </div>
         </div>
-    </section>
+      </div>
 
-    <!-- Movie Trailers -->
-    <section id="trailers">
-        <h2>Watch Trailers</h2>
-        <div class="trailer-container">
-            <iframe width="560" height="315" src="https://www.youtube.com/embed/kAznrd-So9U" title="YouTube video player" frameborder="0" allowfullscreen></iframe>
-            <iframe width="560" height="315" src="https://www.youtube.com/embed/9_lWzE5tQeI" title="YouTube video player" frameborder="0" allowfullscreen></iframe>
+      <!-- Black Widow -->
+      <div class="char-card hover-target reveal reveal-d2">
+        <div class="char-img-wrap">
+          <img src="https://picsum.photos/seed/black-widow-spy/600/800.jpg" alt="Black Widow">
+          <span class="char-badge">Spy</span>
         </div>
-    </section>
-
-    <!-- Quote of the Day -->
-    <section id="quote-of-the-day">
-        <h2>Quote of the Day</h2>
-        <p id="quote"></p>
-    </section>
-
-    <!-- Trivia Quiz -->
-    <section id="trivia">
-        <h2>Trivia Quiz</h2>
-        <p>Which character is known as the "Boy Who Lived"?</p>
-        <div class="quiz-buttons">
-            <button onclick="checkAnswer('Harry Potter')">Harry Potter</button>
-            <button onclick="checkAnswer('Iron Man')">Iron Man</button>
+        <div style="padding: 1.5rem;">
+          <h3 class="heading-md mb-2">Black Widow</h3>
+          <p style="color: var(--text-muted); font-size: 0.85rem; line-height: 1.7;">
+            Natasha Romanoff — Red Room operative turned S.H.I.E.L.D. agent and Avenger. A master martial artist and spy, she was the team's moral compass and gave her life on Vormir to save half the universe.
+          </p>
+          <div class="flex gap-4 mt-4 pt-3" style="border-top: 1px solid var(--border);">
+            <div>
+              <p style="color: var(--accent); font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.12em;">Universe</p>
+              <p style="font-size: 0.8rem; margin-top: 0.15rem;">Marvel Cinematic</p>
+            </div>
+            <div>
+              <p style="color: var(--accent); font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.12em;">Actor</p>
+              <p style="font-size: 0.8rem; margin-top: 0.15rem;">Scarlett Johansson</p>
+            </div>
+          </div>
         </div>
-        <p id="result"></p>
-    </section>
+      </div>
+    </div>
+  </div>
+</section>
 
-    <!-- JavaScript -->
-    <script src="script.js"></script>
+<!-- ========== TRAILERS ========== -->
+<section id="trailers" class="sec-pad" style="padding: 6rem 4rem; border-top: 1px solid var(--border); background: var(--surface);">
+  <div class="max-w-[1600px] mx-auto">
+    <div class="reveal flex items-center gap-3 mb-4">
+      <div style="width: 24px; height: 1px; background: var(--accent);"></div>
+      <span class="label-text">Trailers</span>
+    </div>
+    <div class="flex items-end justify-between mb-10">
+      <h2 class="heading-lg reveal reveal-d1">Watch the previews</h2>
+      <p class="label-text reveal reveal-d2 hide-md" style="color: var(--text-muted);">Click to play</p>
+    </div>
+    <div class="trailer-grid grid-2" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem;">
+
+      <!-- Trailer 1 -->
+      <div class="trailer-card reveal" id="trailer1">
+        <div class="trailer-thumb" onclick="playTrailer('trailer1','kAznrd-So9U')">
+          <img src="https://picsum.photos/seed/avengers-trailer-epic/960/540.jpg" alt="Avengers Trailer">
+          <div class="play-circle">
+            <iconify-icon icon="mdi:play" style="font-size: 1.5rem; color: #000; margin-left: 3px;"></iconify-icon>
+          </div>
+          <iframe class="trailer-iframe" src="" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+        </div>
+        <div style="padding: 1.25rem;">
+          <p class="font-display font-semibold text-sm">Avengers: Endgame — Official Trailer</p>
+          <div class="flex items-center gap-3 mt-1.5">
+            <span style="color: var(--text-muted); font-size: 0.75rem;">Marvel Studios</span>
+            <span style="color: var(--border-light);">·</span>
+            <span style="color: var(--text-muted); font-size: 0.75rem;">2019</span>
+            <span style="color: var(--border-light);">·</span>
+            <span class="genre-pill">Action</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Trailer 2 -->
+      <div class="trailer-card reveal reveal-d1" id="trailer2">
+        <div class="trailer-thumb" onclick="playTrailer('trailer2','9_lWzE5tQeI')">
+          <img src="https://picsum.photos/seed/harry-potter-trailer-magic/960/540.jpg" alt="Harry Potter Trailer">
+          <div class="play-circle">
+            <iconify-icon icon="mdi:play" style="font-size: 1.5rem; color: #000; margin-left: 3px;"></iconify-icon>
+          </div>
+          <iframe class="trailer-iframe" src="" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+        </div>
+        <div style="padding: 1.25rem;">
+          <p class="font-display font-semibold text-sm">Harry Potter — Official Trailer</p>
+          <div class="flex items-center gap-3 mt-1.5">
+            <span style="color: var(--text-muted); font-size: 0.75rem;">Warner Bros.</span>
+            <span style="color: var(--border-light);">·</span>
+            <span style="color: var(--text-muted); font-size: 0.75rem;">2001</span>
+            <span style="color: var(--border-light);">·</span>
+            <span class="genre-pill">Fantasy</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Trailer 3 -->
+      <div class="trailer-card reveal reveal-d2" id="trailer3">
+        <div class="trailer-thumb" onclick="playTrailer('trailer3','zSWdZVtXT7E')">
+          <img src="https://picsum.photos/seed/dark-knight-trailer-city/960/540.jpg" alt="Dark Knight Trailer">
+          <div class="play-circle">
+            <iconify-icon icon="mdi:play" style="font-size: 1.5rem; color: #000; margin-left: 3px;"></iconify-icon>
+          </div>
+          <iframe class="trailer-iframe" src="" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+        </div>
+        <div style="padding: 1.25rem;">
+          <p class="font-display font-semibold text-sm">The Dark Knight — Official Trailer</p>
+          <div class="flex items-center gap-3 mt-1.5">
+            <span style="color: var(--text-muted); font-size: 0.75rem;">Warner Bros.</span>
+            <span style="color: var(--border-light);">·</span>
+            <span style="color: var(--text-muted); font-size: 0.75rem;">2008</span>
+            <span style="color: var(--border-light);">·</span>
+            <span class="genre-pill">Thriller</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Trailer 4 -->
+      <div class="trailer-card reveal reveal-d3" id="trailer4">
+        <div class="trailer-thumb" onclick="playTrailer('trailer4','zSWdZVtXT7E')">
+          <img src="https://picsum.photos/seed/interstellar-trailer-space/960/540.jpg" alt="Interstellar Trailer">
+          <div class="play-circle">
+            <iconify-icon icon="mdi:play" style="font-size: 1.5rem; color: #000; margin-left: 3px;"></iconify-icon>
+          </div>
+          <iframe class="trailer-iframe" src="" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+        </div>
+        <div style="padding: 1.25rem;">
+          <p class="font-display font-semibold text-sm">Interstellar — Official Trailer</p>
+          <div class="flex items-center gap-3 mt-1.5">
+            <span style="color: var(--text-muted); font-size: 0.75rem;">Paramount</span>
+            <span style="color: var(--border-light);">·</span>
+            <span style="color: var(--text-muted); font-size: 0.75rem;">2014</span>
+            <span style="color: var(--border-light);">·</span>
+            <span class="genre-pill">Sci-Fi</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== QUOTE OF THE DAY ========== -->
+<section id="quotes" class="sec-pad" style="padding: 8rem 4rem; border-top: 1px solid var(--border); position: relative; overflow: hidden;">
+  <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 500px; height: 500px; background: radial-gradient(ellipse, var(--accent-dim) 0%, transparent 70%); filter: blur(80px); pointer-events: none;"></div>
+  <div class="max-w-[1600px] mx-auto text-center relative z-10">
+    <div class="reveal flex items-center justify-center gap-3 mb-8">
+      <div style="width: 24px; height: 1px; background: var(--accent);"></div>
+      <span class="label-text">Quote of the Day</span>
+      <div style="width: 24px; height: 1px; background: var(--accent);"></div>
+    </div>
+    <div class="reveal reveal-d1">
+      <span class="quote-big font-display">"</span>
+      <p id="quote" style="font-family: var(--font-display); font-size: clamp(1.4rem, 2.8vw, 2.4rem); font-weight: 500; line-height: 1.45; max-width: 750px; margin: -3rem auto 0; color: var(--text-main); transition: opacity 0.4s, transform 0.4s;"></p>
+      <div class="flex items-center justify-center gap-3 mt-6">
+        <div style="width: 32px; height: 1px; background: var(--accent);"></div>
+        <p id="quoteSource" class="label-text" style="color: var(--accent); transition: opacity 0.4s;"></p>
+        <div style="width: 32px; height: 1px; background: var(--accent);"></div>
+      </div>
+    </div>
+    <button onclick="newQuote()" class="hover-target mt-10 reveal reveal-d2 font-display font-semibold uppercase tracking-widest text-xs px-6 py-3 transition-all duration-300" style="background: transparent; color: var(--accent); border: 1px solid rgba(212,175,55,0.25); border-radius: 4px; cursor: pointer;" onmouseenter="this.style.background='var(--accent)';this.style.color='#000'" onmouseleave="this.style.background='transparent';this.style.color='var(--accent)'">
+      <iconify-icon icon="mdi:refresh" style="font-size: 0.85rem; vertical-align: middle; margin-right: 0.4rem;"></iconify-icon>
+      New Quote
+    </button>
+  </div>
+</section>
+
+<!-- ========== TRIVIA QUIZ ========== -->
+<section id="trivia" class="sec-pad" style="padding: 6rem 4rem; border-top: 1px solid var(--border);">
+  <div class="max-w-[1600px] mx-auto">
+    <div class="grid-2" style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 3rem;">
+      <!-- Quiz -->
+      <div>
+        <div class="reveal flex items-center gap-3 mb-4">
+          <div style="width: 24px; height: 1px; background: var(--accent);"></div>
+          <span class="label-text">
+            <iconify-icon icon="mdi:head-question" style="font-size: 0.75rem; vertical-align: middle; margin-right: 0.3rem; color: var(--accent);"></iconify-icon>
+            Trivia Quiz
+          </span>
+        </div>
+        <h2 class="heading-lg mb-3 reveal reveal-d1">Test your movie knowledge</h2>
+        <p class="reveal reveal-d2 mb-6" style="color: var(--text-muted); font-size: 0.9rem;">Five questions. Prove you're a true cinephile.</p>
+
+        <div class="reveal reveal-d2">
+          <div class="flex items-center justify-between mb-2">
+            <span class="label-text" id="qCounter" style="color: var(--accent);">Question 1 of 5</span>
+            <span class="label-text" id="qScore" style="color: var(--text-muted);">Score: 0</span>
+          </div>
+          <div class="progress-track mb-6">
+            <div class="progress-fill" id="quizProgress" style="width: 0%;"></div>
+          </div>
+        </div>
+
+        <div id="quizArea" class="reveal reveal-d3"></div>
+
+        <div id="quizResult" style="display: none;" class="reveal">
+          <div style="background: var(--surface); border: 1px solid var(--border); padding: 2.5rem; border-radius: 8px; text-align: center;">
+            <div style="width: 64px; height: 64px; border-radius: 50%; background: var(--accent-dim); border: 1px solid rgba(212,175,55,0.3); display: flex; align-items: center; justify-content: center; margin: 0 auto;">
+              <iconify-icon icon="mdi:trophy" style="font-size: 1.5rem; color: var(--accent);"></iconify-icon>
+            </div>
+            <p class="heading-md mt-4" id="resultTitle"></p>
+            <p class="mt-2" style="color: var(--text-muted); font-size: 0.9rem;" id="resultDesc"></p>
+            <div class="flex items-center justify-center gap-4 mt-5">
+              <div style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background: var(--accent-dim); border: 1px solid rgba(212,175,55,0.3); border-radius: 4px; color: var(--accent); font-weight: 700; font-size: 0.9rem;">
+                <iconify-icon icon="mdi:check-circle" style="font-size: 1rem;"></iconify-icon>
+                <span id="resultScore">0/5</span>
+              </div>
+            </div>
+            <button onclick="restartQuiz()" class="hover-target mt-6 font-display font-semibold uppercase tracking-widest text-xs px-6 py-3 transition-all duration-300" style="background: var(--accent); color: #000; border: none; border-radius: 4px; cursor: pointer;" onmouseenter="this.style.background='var(--text-main)'" onmouseleave="this.style.background='var(--accent)'">
+              Play Again
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sidebar -->
+      <div class="hide-md">
+        <div class="reveal" style="background: var(--surface); border: 1px solid var(--border); padding: 1.75rem; border-radius: 8px; position: sticky; top: 6rem;">
+          <p class="label-text mb-4">Your Stats</p>
+          <div>
+            <div class="stat-item">
+              <span style="color: var(--text-muted); font-size: 0.85rem;">Quizzes Taken</span>
+              <span class="font-display font-semibold" id="statQuizzes">0</span>
+            </div>
+            <div class="stat-item">
+              <span style="color: var(--text-muted); font-size: 0.85rem;">Best Score</span>
+              <span class="font-display font-semibold" style="color: var(--accent);" id="statBest">—</span>
+            </div>
+            <div class="stat-item">
+              <span style="color: var(--text-muted); font-size: 0.85rem;">Best Streak</span>
+              <span class="font-display font-semibold" id="statStreak">0</span>
+            </div>
+            <div class="stat-item">
+              <span style="color: var(--text-muted); font-size: 0.85rem;">Accuracy</span>
+              <span class="font-display font-semibold" id="statAccuracy">—</span>
+            </div>
+          </div>
+          <div style="border-top: 1px solid var(--border); margin-top: 1rem; padding-top: 1rem;">
+            <p class="label-text mb-2">Difficulty</p>
+            <div class="flex gap-2">
+              <span style="padding: 0.25rem 0.6rem; border: 1px solid rgba(212,175,55,0.3); font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent); background: var(--accent-dim); border-radius: 3px;">Medium</span>
+              <span style="padding: 0.25rem 0.6rem; border: 1px solid var(--border); font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); border-radius: 3px;">5 Qs</span>
+            </div>
+          </div>
+          <div style="border-top: 1px solid var(--border); margin-top: 1rem; padding-top: 1rem;">
+            <p class="label-text mb-2">Fun Fact</p>
+            <p style="color: var(--text-muted); font-size: 0.8rem; line-height: 1.6;" id="funFact">Loading...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== FUN FACTS MARQUEE ========== -->
+<section style="padding: 2rem 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); overflow: hidden;">
+  <div class="flex whitespace-nowrap" style="animation: marquee-r 40s linear infinite;">
+    <span style="color: var(--text-muted); font-size: 0.8rem; padding: 0 2.5rem;">🎬 The Godfather was initially offered to Elvis Presley</span>
+    <span style="color: rgba(212,175,55,0.3); padding: 0 0.5rem;">·</span>
+    <span style="color: var(--text-muted); font-size: 0.8rem; padding: 0 2.5rem;">🎥 Marvel has released 32+ MCU films since 2008</span>
+    <span style="color: rgba(212,175,55,0.3); padding: 0 0.5rem;">·</span>
+    <span style="color: var(--text-muted); font-size: 0.8rem; padding: 0 2.5rem;">🏆 Titanic won 11 Oscars in 1998</span>
+    <span style="color: rgba(212,175,55,0.3); padding: 0 0.5rem;">·</span>
+    <span style="color: var(--text-muted); font-size: 0.8rem; padding: 0 2.5rem;">⚡ Heath Ledger locked himself in a room for weeks to prepare the Joker role</span>
+    <span style="color: rgba(212,175,55,0.3); padding: 0 0.5rem;">·</span>
+    <span style="color: var(--text-muted); font-size: 0.8rem; padding: 0 2.5rem;">🎭 "I am Iron Man" was not in the original script of Endgame</span>
+    <span style="color: rgba(212,175,55,0.3); padding: 0 0.5rem;">·</span>
+    <span style="color: var(--text-muted); font-size: 0.8rem; padding: 0 2.5rem;">🎬 The Godfather was initially offered to Elvis Presley</span>
+    <span style="color: rgba(212,175,55,0.3); padding: 0 0.5rem;">·</span>
+    <span style="color: var(--text-muted); font-size: 0.8rem; padding: 0 2.5rem;">🎥 Marvel has released 32+ MCU films since 2008</span>
+    <span style="color: rgba(212,175,55,0.3); padding: 0 0.5rem;">·</span>
+    <span style="color: var(--text-muted); font-size: 0.8rem; padding: 0 2.5rem;">🏆 Titanic won 11 Oscars in 1998</span>
+    <span style="color: rgba(212,175,55,0.3); padding: 0 0.5rem;">·</span>
+    <span style="color: var(--text-muted); font-size: 0.8rem; padding: 0 2.5rem;">⚡ Heath Ledger locked himself in a room for weeks to prepare the Joker role</span>
+    <span style="color: rgba(212,175,55,0.3); padding: 0 0.5rem;">·</span>
+    <span style="color: var(--text-muted); font-size: 0.8rem; padding: 0 2.5rem;">🎭 "I am Iron Man" was not in the original script of Endgame</span>
+    <span style="color: rgba(212,175,55,0.3); padding: 0 0.5rem;">·</span>
+  </div>
+</section>
+
+<!-- ========== FOOTER ========== -->
+<footer style="padding: 4rem; border-top: 1px solid var(--border);">
+  <div class="max-w-[1600px] mx-auto">
+    <div class="grid-2" style="display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr; gap: 2.5rem; margin-bottom: 3rem;">
+      <div>
+        <a href="#hero" class="hover-target flex items-center gap-2 mb-4" style="text-decoration: none;">
+          <iconify-icon icon="mdi:filmstrip-box" style="font-size: 1.3rem; color: var(--accent);"></iconify-icon>
+          <span class="font-display font-bold text-sm tracking-tight" style="color: var(--text-main);">MOVIE BUFF CENTRAL</span>
+        </a>
+        <p style="color: var(--text-muted); font-size: 0.8rem; line-height: 1.7; max-width: 280px;">
+          Your one-stop hub for movie fanatics. Explore, watch, and test your cinema knowledge.
+        </p>
+        <div class="flex gap-3 mt-5">
+          <a href="https://www.imdb.com" target="_blank" class="hover-target" style="color: var(--text-muted); transition: color 0.15s;" onmouseenter="this.style.color='var(--accent)'" onmouseleave="this.style.color='var(--text-muted)'">
+            <iconify-icon icon="mdi:movie-open-outline" style="font-size: 1.1rem;"></iconify-icon>
+          </a>
+          <a href="https://www.letterboxd.com" target="_blank" class="hover-target" style="color: var(--text-muted); transition: color 0.15s;" onmouseenter="this.style.color='var(--accent)'" onmouseleave="this.style.color='var(--text-muted)'">
+            <iconify-icon icon="mdi:letterbox" style="font-size: 1.1rem;"></iconify-icon>
+          </a>
+          <a href="https://www.youtube.com" target="_blank" class="hover-target" style="color: var(--text-muted); transition: color 0.15s;" onmouseenter="this.style.color='var(--accent)'" onmouseleave="this.style.color='var(--text-muted)'">
+            <iconify-icon icon="mdi:youtube" style="font-size: 1.1rem;"></iconify-icon>
+          </a>
+          <a href="https://twitter.com" target="_blank" class="hover-target" style="color: var(--text-muted); transition: color 0.15s;" onmouseenter="this.style.color='var(--accent)'" onmouseleave="this.style.color='var(--text-muted)'">
+            <iconify-icon icon="mdi:twitter" style="font-size: 1.1rem;"></iconify-icon>
+          </a>
+        </div>
+      </div>
+      <div>
+        <p class="label-text mb-3">Navigate</p>
+        <div class="space-y-2">
+          <a href="#films" class="hover-target block" style="color: var(--text-muted); font-size: 0.8rem; text-decoration: none; transition: color 0.15s;" onmouseenter="this.style.color='var(--text-main)'" onmouseleave="this.style.color='var(--text-muted)'">Featured Films</a>
+          <a href="#characters" class="hover-target block" style="color: var(--text-muted); font-size: 0.8rem; text-decoration: none; transition: color 0.15s;" onmouseenter="this.style.color='var(--text-main)'" onmouseleave="this.style.color='var(--text-muted)'">Characters</a>
+          <a href="#trailers" class="hover-target block" style="color: var(--text-muted); font-size: 0.8rem; text-decoration: none; transition: color 0.15s;" onmouseenter="this.style.color='var(--text-main)'" onmouseleave="this.style.color='var(--text-muted)'">Trailers</a>
+          <a href="#quotes" class="hover-target block" style="color: var(--text-muted); font-size: 0.8rem; text-decoration: none; transition: color 0.15s;" onmouseenter="this.style.color='var(--text-main)'" onmouseleave="this.style.color='var(--text-muted)'">Quotes</a>
+          <a href="#trivia" class="hover-target block" style="color: var(--text-muted); font-size: 0.8rem; text-decoration: none; transition: color 0.15s;" onmouseenter="this.style.color='var(--text-main)'" onmouseleave="this.style.color='var(--text-muted)'">Trivia Quiz</a>
+        </div>
+      </div>
+      <div>
+        <p class="label-text mb-3">Resources</p>
+        <div class="space-y-2">
+          <a href="https://www.imdb.com" target="_blank" class="hover-target block" style="color: var(--text-muted); font-size: 0.8rem; text-decoration: none; transition: color 0.15s;" onmouseenter="this.style.color='var(--text-main)'" onmouseleave="this.style.color='var(--text-muted)'">IMDb</a>
+          <a href="https://www.rottentomatoes.com" target="_blank" class="hover-target block" style="color: var(--text-muted); font-size: 0.8rem; text-decoration: none; transition: color 0.15s;" onmouseenter="this.style.color='var(--text-main)'" onmouseleave="this.style.color='var(--text-muted)'">Rotten Tomatoes</a>
+          <a href="https://www.themoviedb.org" target="_blank" class="hover-target block" style="color: var(--text-muted); font-size: 0.8rem; text-decoration: none; transition: color 0.15s;" onmouseenter="this.style.color='var(--text-main)'" onmouseleave="this.style.color='var(--text-muted)'">TMDB</a>
+          <a href="https://www.metacritic.com" target="_blank" class="hover-target block" style="color: var(--text-muted); font-size: 0.8rem; text-decoration: none; transition: color 0.15s;" onmouseenter="this.style.color='var(--text-main)'" onmouseleave="this.style.color='var(--text-muted)'">Metacritic</a>
+        </div>
+      </div>
+      <div>
+        <p class="label-text mb-3">Project</p>
+        <div class="space-y-2">
+          <span style="color: var(--text-muted); font-size: 0.8rem; display: block;">B.Tech Final Year</span>
+          <span style="color: var(--text-muted); font-size: 0.8rem; display: block;">Web Development</span>
+          <span style="color: var(--text-muted); font-size: 0.8rem; display: block;">2024</span>
+        </div>
+        <div class="flex items-center gap-2 mt-3">
+          <span class="pulse" style="width: 6px; height: 6px; background: var(--accent); border-radius: 50%; display: inline-block;"></span>
+          <span style="color: var(--text-muted); font-size: 0.7rem;">Fan project — not affiliated with studios</span>
+        </div>
+      </div>
+    </div>
+    <div style="border-top: 1px solid var(--border); padding-top: 1.5rem;" class="flex flex-col lg:flex-row items-center justify-between gap-3">
+      <p style="color: var(--text-muted); font-size: 0.7rem;">© 2024 Movie Buff Central. All movie images are used for fan purposes only.</p>
+      <a href="#hero" class="hover-target label-text" style="color: var(--text-muted); text-decoration: none; transition: color 0.15s;" onmouseenter="this.style.color='var(--accent)'" onmouseleave="this.style.color='var(--text-muted)'">
+        Back to top ↑
+      </a>
+    </div>
+  </div>
+</footer>
+
+<!-- Toast -->
+<div class="toast-msg" id="toast"></div>
+
+<script>
+  // ==================== CURSOR ====================
+  const cursor = document.getElementById('cursor');
+  const follower = document.getElementById('cursorFollower');
+  let mx = 0, my = 0, fx = 0, fy = 0;
+
+  if (window.matchMedia('(pointer: fine)').matches) {
+    document.addEventListener('mousemove', e => {
+      mx = e.clientX; my = e.clientY;
+      cursor.style.left = mx - 4 + 'px';
+      cursor.style.top = my - 4 + 'px';
+    });
+    (function loop() {
+      fx += (mx - fx) * 0.15;
+      fy += (my - fy) * 0.15;
+      const w = follower.classList.contains('hover') ? 60 : 32;
+      follower.style.left = fx - w / 2 + 'px';
+      follower.style.top = fy - w / 2 + 'px';
+      requestAnimationFrame(loop);
+    })();
+    function bindHover() {
+      document.querySelectorAll('.hover-target, a, button, .quiz-opt').forEach(el => {
+        el.removeEventListener('mouseenter', addHover);
+        el.removeEventListener('mouseleave', removeHover);
+        el.addEventListener('mouseenter', addHover);
+        el.addEventListener('mouseleave', removeHover);
+      });
+    }
+    function addHover() { cursor.classList.add('hover'); follower.classList.add('hover'); }
+    function removeHover() { cursor.classList.remove('hover'); follower.classList.remove('hover'); }
+    bindHover();
+    const origBind = bindHover;
+  }
+
+  // ==================== NAV SCROLL ====================
+  const navbar = document.getElementById('navbar');
+  window.addEventListener('scroll', () => {
+    navbar.classList.toggle('scrolled', window.scrollY > 80);
+  });
+
+  // ==================== MENU ====================
+  const menuBtn = document.getElementById('menuBtn');
+  const menuOverlay = document.getElementById('menuOverlay');
+  const menuIcon = document.getElementById('menuIcon');
+  let menuOpen = false;
+  menuBtn.addEventListener('click', () => {
+    menuOpen = !menuOpen;
+    menuOverlay.classList.toggle('open', menuOpen);
+    menuIcon.setAttribute('icon', menuOpen ? 'mdi:close' : 'mdi:menu');
+    document.body.style.overflow = menuOpen ? 'hidden' : '';
+  });
+  function closeMenu() {
+    menuOpen = false;
+    menuOverlay.classList.remove('open');
+    menuIcon.setAttribute('icon', 'mdi:menu');
+    document.body.style.overflow = '';
+  }
+
+  // ==================== REVEAL ====================
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('active'); });
+  }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+  document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+  // ==================== SMOOTH SCROLL ====================
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', function(e) {
+      const t = document.querySelector(this.getAttribute('href'));
+      if (t) { e.preventDefault(); t.scrollIntoView({ behavior: 'smooth' }); }
+    });
+  });
+
+  // ==================== TRAILERS ====================
+  function playTrailer(id, vid) {
+    const card = document.getElementById(id);
+    card.querySelector('.trailer-iframe').src = `https://www.youtube.com/embed/${vid}?autoplay=1&rel=0`;
+    card.classList.add('playing');
+  }
+
+  // ==================== QUOTES ====================
+  const quotes = [
+    { text: "It does not do to dwell on dreams and forget to live.", src: "Albus Dumbledore — Harry Potter" },
+    { text: "I am Iron Man.", src: "Tony Stark — Avengers: Endgame" },
+    { text: "The Force will be with you, always.", src: "Obi-Wan Kenobi — Star Wars" },
+    { text: "With great power comes great responsibility.", src: "Uncle Ben — Spider-Man" },
+    { text: "Do or do not. There is no try.", src: "Yoda — The Empire Strikes Back" },
+    { text: "I'm going to make him an offer he can't refuse.", src: "Vito Corleone — The Godfather" },
+    { text: "Here's looking at you, kid.", src: "Rick Blaine — Casablanca" },
+    { text: "Why so serious?", src: "The Joker — The Dark Knight" },
+    { text: "After all, tomorrow is another day.", src: "Scarlett O'Hara — Gone with the Wind" },
+    { text: "You talking to me?", src: "Travis Bickle — Taxi Driver" },
+    { text: "May the Force be with you.", src: "Han Solo — Star Wars" },
+    { text: "Just keep swimming.", src: "Dory — Finding Nemo" }
+  ];
+  let lastQi = -1;
+  function newQuote() {
+    let i; do { i = Math.floor(Math.random() * quotes.length); } while (i === lastQi);
+    lastQi = i;
+    const qEl = document.getElementById('quote');
+    const sEl = document.getElementById('quoteSource');
+    qEl.style.opacity = '0'; qEl.style.transform = 'translateY(8px)';
+    setTimeout(() => {
+      qEl.innerText = quotes[i].text;
+      sEl.innerText = quotes[i].src;
+      qEl.style.opacity = '1'; qEl.style.transform = 'translateY(0)';
+    }, 350);
+  }
+  newQuote();
+
+  // ==================== QUIZ ====================
+  const quizData = [
+    { q: "Which character is known as the 'Boy Who Lived'?", opts: ["Harry Potter", "Iron Man", "Frodo Baggins", "Luke Skywalker"], c: 0 },
+    { q: "What is the real name of Iron Man?", opts: ["Steve Rogers", "Bruce Wayne", "Tony Stark", "Clark Kent"], c: 2 },
+    { q: "Which studio produces the Marvel Cinematic Universe films?", opts: ["Warner Bros.", "Universal Pictures", "Marvel Studios", "DC Films"], c: 2 },
+    { q: "In which year was 'Avengers: Endgame' released?", opts: ["2018", "2019", "2020", "2021"], c: 1 },
+    { q: "Black Widow was trained in which program?", opts: ["Weapon X", "The Red Room", "HYDRA Academy", "S.H.I.E.L.D. Initiative"], c: 1 }
+  ];
+  let curQ = 0, score = 0, totalC = 0, totalA = 0, bestS = 0, quizzes = 0, streak = 0, maxStrk = 0;
+  const letters = ['A', 'B', 'C', 'D'];
+
+  const funFacts = [
+    "The iconic 'I am Iron Man' line was ad-libbed by Robert Downey Jr.",
+    "Harry Potter's scar was applied over 2000 times during filming.",
+    "The Dark Knight was the first superhero film to cross $500M domestically.",
+    " Scarlett Johansson performed many of her own stunts in the MCU.",
+    "Endgame's final battle sequence took 6 weeks to shoot.",
+    "The Harry Potter films used over 580 visual effects shots."
+  ];
+
+  function renderQ() {
+    const q = quizData[curQ];
+    document.getElementById('qCounter').innerText = `Question ${curQ + 1} of ${quizData.length}`;
+    document.getElementById('qScore').innerText = `Score: ${score}`;
+    document.getElementById('quizProgress').style.width = (curQ / quizData.length * 100) + '%';
+    document.getElementById('funFact').innerText = funFacts[Math.floor(Math.random() * funFacts.length)];
+
+    const area = document.getElementById('quizArea');
+    area.innerHTML = `
+      <p class="heading-md mb-5">${q.q}</p>
+      <div class="space-y-2.5">
+        ${q.opts.map((o, i) => `
+          <button class="quiz-opt hover-target" onclick="pickAns(${i})">
+            <span class="opt-letter">${letters[i]}</span>
+            <span>${o}</span>
+          </button>
+        `).join('')}
+      </div>
+    `;
+    if (window.matchMedia('(pointer: fine)').matches) {
+      area.querySelectorAll('.hover-target, .quiz-opt').forEach(el => {
+        el.addEventListener('mouseenter', addHover);
+        el.addEventListener('mouseleave', removeHover);
+      });
+    }
+  }
+
+  function pickAns(idx) {
+    const q = quizData[curQ];
+    const btns = document.querySelectorAll('.quiz-opt');
+    btns.forEach((b, i) => {
+      b.classList.add('locked');
+      if (i === q.c) b.classList.add('correct');
+      if (i === idx && i !== q.c) b.classList.add('wrong');
+    });
+    if (idx === q.c) {
+      score++; totalC++; streak++;
+      if (streak > maxStrk) maxStrk = streak;
+      showToast('<iconify-icon icon="mdi:check-circle" style="color:#22c55e;font-size:1rem;"></iconify-icon> Correct!');
+    } else {
+      streak = 0;
+      showToast('<iconify-icon icon="mdi:close-circle" style="color:#ef4444;font-size:1rem;"></iconify-icon> Wrong — it was ' + q.opts[q.c]);
+    }
+    totalA++;
+    document.getElementById('qScore').innerText = `Score: ${score}`;
+    setTimeout(() => {
+      curQ++;
+      if (curQ < quizData.length) renderQ(); else showResult();
+    }, 1400);
+  }
+
+  function showResult() {
+    document.getElementById('quizArea').style.display = 'none';
+    document.getElementById('quizProgress').style.width = '100%';
+    document.getElementById('quizResult').style.display = 'block';
+    quizzes++;
+    if (score > bestS) bestS = score;
+    const t = ["Better luck next time!","Not bad!","Getting there!","Impressive!","Cinephile status!","Perfect — legend!"];
+    const d = ["Rewatch some classics.","You know a thing or two.","Solid knowledge!","You really know cinema!","True movie buff!","Flawless victory."];
+    document.getElementById('resultTitle').innerText = t[score];
+    document.getElementById('resultDesc').innerText = d[score];
+    document.getElementById('resultScore').innerText = score + '/' + quizData.length;
+    updateStats();
+  }
+
+  function updateStats() {
+    document.getElementById('statQuizzes').innerText = quizzes;
+    document.getElementById('statBest').innerText = bestS + '/5';
+    document.getElementById('statStreak').innerText = maxStrk;
+    document.getElementById('statAccuracy').innerText = totalA > 0 ? Math.round(totalC / totalA * 100) + '%' : '—';
+  }
+
+  function restartQuiz() {
+    curQ = 0; score = 0;
+    document.getElementById('quizArea').style.display = 'block';
+    document.getElementById('quizResult').style.display = 'none';
+    document.getElementById('quizProgress').style.width = '0%';
+    renderQ();
+  }
+
+  renderQ();
+
+  // ==================== TOAST ====================
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.innerHTML = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+  }
+</script>
 </body>
-
 </html>
